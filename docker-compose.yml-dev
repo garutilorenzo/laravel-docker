@@ -4,6 +4,8 @@ services:
   laravel:
     image: garutilorenzo/laravel:latest
     container_name: laravel
+    volumes:
+      - ${LARAVEL_DATA_DIR:-./laravel-project}:/var/www/html
     environment:
       - MYSQL_USER=app
       - MYSQL_PASSWORD=dev
