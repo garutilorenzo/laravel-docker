@@ -2,7 +2,7 @@ version: '3.4'
 services:
 
   laravel:
-    image: garutilorenzo/laravel:latest
+    image: garutilorenzo/laravel:php73
     container_name: laravel
     environment:
       - MYSQL_USER=app
