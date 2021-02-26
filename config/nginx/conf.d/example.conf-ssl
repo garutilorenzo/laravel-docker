@@ -13,7 +13,7 @@ server {
 }
 
 server {
-        listen 80;
+        listen 443 ssl;
         ### Change the following line to match your website name
         server_name example.com www.example.com;
         root /var/www/html/public;
