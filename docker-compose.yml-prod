@@ -1,0 +1,78 @@
+version: '3.4'
+services:
+
+  laravel:
+    image: garutilorenzo/laravel:latest
+    container_name: laravel
+    volumes:
+      - ${LARAVEL_DATA_DIR:-./laravel-project}:/var/www/html
+    environment:
+      - MYSQL_USER=app
+      - MYSQL_PASSWORD=dev
+      - MYSQL_DATABASE=laravel
+      - LARAVEL_DB_HOST=mysql
+    depends_on:
+      - mysql
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "1m"
+        max-file: "5"
+    restart: always
+
+  mysql:
+    image: mariadb:${MARIADB_VERSION:-latest}
+    container_name: mysql
+    volumes:
+      - type: volume
+        source: mysql
+        target: /var/lib/mysql
+        volume:
+          nocopy: true
+    #  - ./sql:/docker-entrypoint-initdb.d
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:-password}
+      - MYSQL_USER=${MYSQL_USER:-root}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD:-password}
+      - MYSQL_DATABASE=${MYSQL_DATABASE:-laravel}
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "1m"
+        max-file: "5"
+    restart: always
+
+  nginx:
+    image: nginx:${NGINX_VERSION:-latest}
+    container_name: nginx
+    ports:
+      - '80:80'
+      - '443:443'
+    volumes:
+      - ${NGINX_CONF_DIR:-./config/nginx}:/etc/nginx/
+      - ${LARAVEL_DATA_DIR:-./laravel-project}:/var/www/html:ro
+    depends_on:
+      - laravel
+    # command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'" #certobt
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "1m"
+        max-file: "5"
+    restart: always
+
+  # certbot:
+  #   image: certbot/certbot
+  #   restart: unless-stopped
+  #   volumes:
+  #     - ./data/certbot/conf:/etc/letsencrypt
+  #     - ./data/certbot/www:/var/www/certbot
+  #   entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
+  #   logging:
+  #     driver: "json-file"
+  #     options:
+  #       max-size: "1m"
+  #       max-file: "5"
+
+volumes:
+ mysql:

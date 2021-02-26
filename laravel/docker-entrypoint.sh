@@ -1,0 +1,102 @@
+#!/bin/bash
+set -euo pipefail
+file_env() {
+	local var="$1"
+	local fileVar="${var}_FILE"
+	local def="${2:-}"
+	if [ "${!var:-}" ] && [ "${!fileVar:-}" ]; then
+		echo >&2 "error: both $var and $fileVar are set (but are exclusive)"
+		exit 1
+	fi
+	local val="$def"
+	if [ "${!var:-}" ]; then
+		val="${!var}"
+	elif [ "${!fileVar:-}" ]; then
+		val="$(< "${!fileVar}")"
+	fi
+	export "$var"="$val"
+	unset "$fileVar"
+}
+
+if [ "$1" == php-fpm ]  || [ "$1" == php ]; then
+  file_env 'FORCE_MIGRATE'
+  if [[ ! -d /var/www/html/vendor ]]; then
+	composer install
+	echo "Composer install"
+  else
+	composer update
+	echo "Composer update"
+  fi
+
+  FILE=/var/www/html/.env
+  if ! [ -f "$FILE" ]; then
+    : "${LARAVEL_DB_HOST:=mysql}"
+    : "${MYSQL_USER:=app}"
+    : "${MYSQL_PASSWORD:=dev}"
+    : "${MYSQL_DATABASE:=laravel}"
+
+    cat << EOF >> /var/www/html/.env
+
+APP_NAME=Laravel
+APP_ENV=local
+APP_KEY=
+APP_DEBUG=true
+APP_URL=http://localhost
+
+LOG_CHANNEL=stack
+LOG_LEVEL=debug
+
+DB_CONNECTION=mysql
+DB_HOST=$LARAVEL_DB_HOST
+DB_PORT=3306
+DB_DATABASE=$MYSQL_DATABASE
+DB_USERNAME=$MYSQL_USER
+DB_PASSWORD=$MYSQL_PASSWORD
+
+BROADCAST_DRIVER=log
+CACHE_DRIVER=file
+QUEUE_CONNECTION=sync
+SESSION_DRIVER=file
+SESSION_LIFETIME=120
+
+MEMCACHED_HOST=127.0.0.1
+
+REDIS_HOST=127.0.0.1
+REDIS_PASSWORD=null
+REDIS_PORT=6379
+
+MAIL_MAILER=smtp
+MAIL_HOST=mailhog
+MAIL_PORT=1025
+MAIL_USERNAME=null
+MAIL_PASSWORD=null
+MAIL_ENCRYPTION=null
+MAIL_FROM_ADDRESS=null
+MAIL_FROM_NAME=""
+
+AWS_ACCESS_KEY_ID=
+AWS_SECRET_ACCESS_KEY=
+AWS_DEFAULT_REGION=us-east-1
+AWS_BUCKET=
+
+PUSHER_APP_ID=
+PUSHER_APP_KEY=
+PUSHER_APP_SECRET=
+PUSHER_APP_CLUSTER=mt1
+
+MIX_PUSHER_APP_KEY=""
+MIX_PUSHER_APP_CLUSTER=""
+EOF
+
+    php artisan key:generate
+    php artisan config:cache
+	php -f /usr/local/bin/wait-mysql.php
+  fi
+  if [ -z "$FORCE_MIGRATE" ]; then
+		echo "DB initialization skipped"
+	else
+		php artisan migrate --force
+   fi
+fi
+
+exec "$@"
