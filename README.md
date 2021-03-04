@@ -1,4 +1,5 @@
 # laravel-docker
+[![Laravel CI](https://github.com/garutilorenzo/laravel-docker/actions/workflows/ci.yml/badge.svg?branch=laravel-php73)](https://github.com/garutilorenzo/laravel-docker/actions/workflows/ci.yml)
 
 #### How to use this repository
 
