@@ -1,0 +1,28 @@
+name: Laravel CI
+
+on:
+  push:
+    branches:
+    - master
+    - laravel-php73
+    - laravel-php74
+  pull_request:
+    branches:
+    - master
+    - laravel-php73
+    - laravel-php74
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Build the Docker image
+      run: docker-compose -f docker-compose.yml-ci build --pull --no-cache
+    - name: Bringup the environment
+      run: docker-compose -f docker-compose.yml-ci up -d
+    - name: Testing connection to laravel
+      run: curl --retry 10 --retry-connrefused -I http://localhost:3000
