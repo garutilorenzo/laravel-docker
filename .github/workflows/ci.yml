@@ -25,4 +25,4 @@ jobs:
     - name: Bringup the environment
       run: docker-compose -f docker-compose.yml-ci up -d
     - name: Testing connection to laravel
-      run: docker-compose -f docker-compose.yml-ci exec laravel curl --retry 10 --retry-connrefused -I http://localhost:3000
+      run: docker-compose -f docker-compose.yml-ci exec -T laravel curl --retry 10 --retry-connrefused -I http://localhost:3000
