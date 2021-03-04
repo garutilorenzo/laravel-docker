@@ -1,5 +1,7 @@
 # laravel-docker
 
+[![Laravel CI](https://github.com/garutilorenzo/laravel-docker/actions/workflows/ci.yml/badge.svg?branch=laravel-php74)](https://github.com/garutilorenzo/laravel-docker/actions/workflows/ci.yml)
+
 #### How to use this repository
 
 There are 3 branch. Each branch contains a different version of php-fpm.
