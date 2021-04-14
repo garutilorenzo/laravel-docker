@@ -1,6 +1,12 @@
 # laravel-docker
 
 [![Laravel CI](https://github.com/garutilorenzo/laravel-docker/actions/workflows/ci.yml/badge.svg)](https://github.com/garutilorenzo/laravel-docker/actions/workflows/ci.yml)
+[![GitHub issues](https://img.shields.io/github/issues/garutilorenzo/laravel-docker)](https://github.com/garutilorenzo/laravel-docker/issues)
+![GitHub](https://img.shields.io/github/license/garutilorenzo/laravel-docker)
+[![GitHub forks](https://img.shields.io/github/forks/garutilorenzo/laravel-docker)](https://github.com/garutilorenzo/laravel-docker/network)
+[![GitHub stars](https://img.shields.io/github/stars/garutilorenzo/laravel-docker)](https://github.com/garutilorenzo/laravel-docker/stargazers)
+
+![Laravel Logo](https://garutilorenzo.github.io/images/laravel.png)
 
 #### How to use this repository
 
