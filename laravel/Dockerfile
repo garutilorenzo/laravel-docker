@@ -5,8 +5,12 @@ RUN apt-get update && apt-get install -y \
     libpng-dev \
     libjpeg62-turbo-dev \
     libfreetype6-dev \
+    libfreetype6 \
     locales \
     libzip-dev \
+    libzip4 \
+    libpng16-16 \
+    libjpeg62-turbo \
     zip \
     git \
     jpegoptim optipng pngquant gifsicle \
@@ -38,6 +42,34 @@ RUN rm -rf /var/www/html \
     && mv /root/laravel-$laravel_version /var/www/html \
     && chown -R www-data:www-data /var/www \
     && rm -rf /root/laravel-$laravel_version
+
+ENV PHPIZE_DEPS \
+		autoconf \
+		dpkg-dev \
+		file \
+		g++ \
+		gcc \
+		libc-dev \
+		make \
+		pkg-config \
+		re2c
+
+# persistent / runtime deps
+RUN set -eux; \
+	apt-get -y remove --purge \
+		$PHPIZE_DEPS \
+		xz-utils \
+        binutils-common \
+        openssh-client \
+        linux-libc-dev \
+        libstdc++-8-dev \
+        libc-dev-bin \
+        libgcc-8-dev \
+        libc6-dev \
+        dpkg-dev \
+	; \
+    apt-get -y autoremove; \
+	rm -rf /var/lib/apt/lists/*
 
 WORKDIR /var/www/html/
 
