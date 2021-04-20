@@ -3,7 +3,7 @@ services:
 
   laravel:
     container_name: laravel
-    image: laravel-docker-ci
+    image: localbuild/laravel-docker:latest
     build:
      context: laravel/
     environment:
