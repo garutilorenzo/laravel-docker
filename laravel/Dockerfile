@@ -1,19 +1,23 @@
-FROM php:8.0-fpm
+FROM php:8.0-alpine
 
 # Install dependencies
-RUN apt-get update && apt-get install -y \
-    libpng-dev \
-    libjpeg62-turbo-dev \
-    libfreetype6-dev \
-    locales \
+
+RUN apk add --no-cache \
+    freetype \
+    libpng \
     libzip-dev \
+    libjpeg-turbo \
+    freetype-dev \
+    libpng-dev \
+    libjpeg-turbo-dev \
     zip \
     git \
-    jpegoptim optipng pngquant gifsicle \
-    curl
-
-# Clear cache
-RUN apt-get clean && rm -rf /var/lib/apt/lists/*
+    jpegoptim \
+    optipng \
+    pngquant \
+    gifsicle \
+    curl \
+    bash
 
 # Install extensions
 RUN docker-php-ext-install pdo_mysql zip exif pcntl
@@ -28,7 +32,16 @@ COPY ./composer.sh /
 RUN /composer.sh && rm -rf /composer.sh
 
 # Add user for laravel application
-RUN groupadd -g 1000 app && useradd -u 1000 -g 1000 -m -d /var/www/html -s /bin/bash app && usermod -a -G www-data app
+RUN addgroup --gid 1000 app && \
+    adduser \
+    --disabled-password \
+    --gecos "" \
+    --home /var/www/html \
+    --ingroup app \
+    --no-create-home \
+    --uid 1000 \
+    app && \
+    addgroup app www-data
 
 WORKDIR /root/
 
