@@ -279,6 +279,19 @@ RUN docker-php-ext-install pdo_mysql zip exif pcntl
 RUN docker-php-ext-configure gd --enable-gd -with-freetype --with-jpeg
 RUN docker-php-ext-install gd
 
+ENV PHPIZE_DEPS \
+		autoconf \
+		dpkg-dev \
+		file \
+		g++ \
+		gcc \
+		libc-dev \
+		make \
+		pkg-config \
+		re2c
+
+RUN apt-get -y remove --purge $PHPIZE_DEPS
+
 # Install composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 ENV composer_version latest
