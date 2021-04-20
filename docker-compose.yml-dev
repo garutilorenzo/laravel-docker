@@ -2,7 +2,7 @@ version: '3.4'
 services:
 
   laravel:
-    image: garutilorenzo/laravel:latest
+    image: garutilorenzo/laravel:alpine-php80
     container_name: laravel
     volumes:
       - ${LARAVEL_DATA_DIR:-./laravel-project}:/var/www/html
