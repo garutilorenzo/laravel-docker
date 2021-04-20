@@ -39,6 +39,31 @@ RUN rm -rf /var/www/html \
     && chown -R www-data:www-data /var/www \
     && rm -rf /root/laravel-$laravel_version
 
+ENV PHPIZE_DEPS \
+		autoconf \
+		dpkg-dev \
+		file \
+		g++ \
+		gcc \
+		libc-dev \
+		make \
+		pkg-config \
+		re2c
+
+# persistent / runtime deps
+RUN set -eux; \
+	apt-get -y remove --purge \
+		$PHPIZE_DEPS \
+		ca-certificates \
+		curl \
+		xz-utils \
+        linux-libc-dev \
+        binutils-common \
+        openssh-client \
+	; \
+    apt-get -y autoremove; \
+	rm -rf /var/lib/apt/lists/*
+
 WORKDIR /var/www/html/
 
 COPY docker-entrypoint.sh /usr/local/bin/
