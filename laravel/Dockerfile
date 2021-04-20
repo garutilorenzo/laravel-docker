@@ -62,7 +62,6 @@ RUN set -eux; \
         binutils-common \
         openssh-client \
         linux-libc-dev \
-        openssh-client \
         libstdc++-8-dev \
         libc-dev-bin \
         libgcc-8-dev \
