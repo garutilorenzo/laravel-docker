@@ -20,7 +20,6 @@ server {
         index index.php;
         
         add_header X-Frame-Options "SAMEORIGIN";
-        add_header X-XSS-Protection "1; mode=block";
         add_header X-Content-Type-Options "nosniff";
 
         charset utf-8;
