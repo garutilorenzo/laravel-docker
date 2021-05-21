@@ -2,21 +2,23 @@ version: '3.4'
 services:
 
   laravel:
-    image: garutilorenzo/laravel:latest
+    image: garutilorenzo/laravel:php74-pgsql
+    build:
+      context: laravel/
     container_name: laravel
     volumes:
       - ${LARAVEL_DATA_DIR:-./laravel-project}:/var/www/html
     environment:
-      - MYSQL_USER=app
-      - MYSQL_PASSWORD=dev
-      - MYSQL_DATABASE=laravel
-      - LARAVEL_DB_HOST=mysql
+      - PGSQL_USER=${PGSQL_USER:-user}
+      - PGSQL_PASSWORD=${PGSQL_PASSWORD:-password}
+      - PGSQL_DB=${PGSQL_DB:-laravel}
+      - LARAVEL_DB_HOST=pgsql
       - FORCE_MIGRATE=force
     command: [ "php", "artisan", "serve", "--host=0.0.0.0", "--port=3000" ]
     ports: 
       - 3000:3000
     depends_on:
-      - mysql
+      - pgsql
     logging:
       driver: "json-file"
       options:
@@ -24,21 +26,20 @@ services:
         max-file: "5"
     restart: always
 
-  mysql:
-    image: mariadb:${MARIADB_VERSION:-latest}
-    container_name: mysql
+  pgsql:
+    image: postgres:${PGSQL_VERSION:-latest}
+    container_name: pgsql
     volumes:
       - type: volume
-        source: mysql
-        target: /var/lib/mysql
+        source: pgsql
+        target: /var/lib/postgresql/data
         volume:
           nocopy: true
       - ./sql:/docker-entrypoint-initdb.d
     environment:
-      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:-password}
-      - MYSQL_USER=${MYSQL_USER:-root}
-      - MYSQL_PASSWORD=${MYSQL_PASSWORD:-password}
-      - MYSQL_DATABASE=${MYSQL_DATABASE:-laravel}
+      - POSTGRES_USER=${PGSQL_USER:-user}
+      - POSTGRES_PASSWORD=${PGSQL_PASSWORD:-password}
+      - POSTGRES_DB=${PGSQL_DB:-laravel}
     logging:
       driver: "json-file"
       options:
@@ -47,4 +48,4 @@ services:
     restart: always
 
 volumes:
- mysql:
+ pgsql:

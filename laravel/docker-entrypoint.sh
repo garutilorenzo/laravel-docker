@@ -30,10 +30,10 @@ if [ "$1" == php-fpm ]  || [ "$1" == php ]; then
 
   FILE=/var/www/html/.env
   if ! [ -f "$FILE" ]; then
-    : "${LARAVEL_DB_HOST:=mysql}"
-    : "${MYSQL_USER:=app}"
-    : "${MYSQL_PASSWORD:=dev}"
-    : "${MYSQL_DATABASE:=laravel}"
+    : "${LARAVEL_DB_HOST:=pgsql}"
+    : "${PGSQL_USER:=app}"
+    : "${PGSQL_PASSWORD:=dev}"
+    : "${PGSQL_DB:=laravel}"
 
     cat << EOF >> /var/www/html/.env
 
@@ -46,12 +46,12 @@ APP_URL=http://localhost
 LOG_CHANNEL=stack
 LOG_LEVEL=debug
 
-DB_CONNECTION=mysql
+DB_CONNECTION=pgsql
 DB_HOST=$LARAVEL_DB_HOST
-DB_PORT=3306
-DB_DATABASE=$MYSQL_DATABASE
-DB_USERNAME=$MYSQL_USER
-DB_PASSWORD=$MYSQL_PASSWORD
+DB_PORT=5432
+DB_DATABASE=$PGSQL_DB
+DB_USERNAME=$PGSQL_USER
+DB_PASSWORD=$PGSQL_PASSWORD
 
 BROADCAST_DRIVER=log
 CACHE_DRIVER=file
@@ -88,14 +88,13 @@ MIX_PUSHER_APP_KEY=""
 MIX_PUSHER_APP_CLUSTER=""
 EOF
 
-    php artisan key:generate
-    php artisan config:cache
-	php -f /usr/local/bin/wait-mysql.php
+   php artisan key:generate
+   php artisan config:cache
   fi
   if [ -z "$FORCE_MIGRATE" ]; then
-		echo "DB initialization skipped"
-	else
-		php artisan migrate --force
+	echo "DB initialization skipped"
+   else
+	php artisan migrate --force
    fi
 fi
 

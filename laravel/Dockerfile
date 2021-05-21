@@ -1,4 +1,4 @@
-FROM php:8.0-fpm
+FROM php:7.4-fpm
 
 # Install dependencies
 RUN apt-get update && apt-get install -y \
@@ -6,6 +6,7 @@ RUN apt-get update && apt-get install -y \
     libjpeg62-turbo-dev \
     libfreetype6-dev \
     libfreetype6 \
+    libpq-dev \
     locales \
     libzip-dev \
     libzip4 \
@@ -20,7 +21,7 @@ RUN apt-get update && apt-get install -y \
 RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Install extensions
-RUN docker-php-ext-install pdo_mysql zip exif pcntl
+RUN docker-php-ext-install pdo_pgsql zip exif pcntl
 RUN docker-php-ext-configure gd --enable-gd -with-freetype --with-jpeg
 RUN docker-php-ext-install gd
 
@@ -75,8 +76,6 @@ WORKDIR /var/www/html/
 
 COPY docker-entrypoint.sh /usr/local/bin/
 ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
-
-COPY wait-mysql.php /usr/local/bin/
 
 # Set working directory
 VOLUME /var/www/html

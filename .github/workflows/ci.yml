@@ -3,14 +3,10 @@ name: Laravel CI
 on:
   push:
     branches:
-    - master
-    - laravel-php73
-    - laravel-php74
+    - laravel-pgsql-php74
   pull_request:
     branches:
-    - master
-    - laravel-php73
-    - laravel-php74
+    - laravel-pgsql-php74
 
 jobs:
 
