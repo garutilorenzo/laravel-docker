@@ -26,6 +26,52 @@ services:
         max-file: "5"
     restart: always
 
+  scheduler:
+    image: garutilorenzo/laravel:php74-pgsql
+    build:
+      context: laravel/
+    container_name: scheduler
+    volumes:
+      - ${LARAVEL_DATA_DIR:-./laravel-project}:/var/www/html
+    environment:
+      - PGSQL_USER=${PGSQL_USER:-user}
+      - PGSQL_PASSWORD=${PGSQL_PASSWORD:-password}
+      - PGSQL_DB=${PGSQL_DB:-laravel}
+      - LARAVEL_DB_HOST=pgsql
+      - CONTAINER_ROLE=scheduler
+    depends_on:
+      - pgsql
+      - laravel
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "1m"
+        max-file: "5"
+    restart: always
+  
+  queue:
+    image: garutilorenzo/laravel:php74-pgsql
+    build:
+      context: laravel/
+    container_name: queue
+    volumes:
+      - ${LARAVEL_DATA_DIR:-./laravel-project}:/var/www/html
+    environment:
+      - PGSQL_USER=${PGSQL_USER:-user}
+      - PGSQL_PASSWORD=${PGSQL_PASSWORD:-password}
+      - PGSQL_DB=${PGSQL_DB:-laravel}
+      - LARAVEL_DB_HOST=pgsql
+      - CONTAINER_ROLE=queue
+    depends_on:
+      - pgsql
+      - laravel
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "1m"
+        max-file: "5"
+    restart: always
+    
   pgsql:
     image: postgres:${PGSQL_VERSION:-latest}
     container_name: pgsql
