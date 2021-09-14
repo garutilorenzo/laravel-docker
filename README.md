@@ -113,6 +113,90 @@ docker-compose up -d
 
 Nginx will be exposed on port 80 and 443 of your host
 
+#### Queue and Scheduler containers
+
+You can run the laravel container as:
+
+* queue container
+* scheduler container
+
+An example of running laravel container as queue container is:
+
+```
+queue-default:
+    image: garutilorenzo/laravel:php74-pgsql
+    build:
+      context: laravel/
+    container_name: queue-default
+    volumes:
+      - ${LARAVEL_DATA_DIR:-./laravel-project}:/var/www/html
+    environment:
+      - PGSQL_USER=${PGSQL_USER:-user}
+      - PGSQL_PASSWORD=${PGSQL_PASSWORD:-password}
+      - PGSQL_DB=${PGSQL_DB:-laravel}
+      - LARAVEL_DB_HOST=pgsql
+      - CONTAINER_ROLE=queue
+      - QUEUE_NAME=default
+    depends_on:
+      - pgsql
+      - laravel
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "1m"
+        max-file: "5"
+    restart: always
+```
+You can launch as many queue container as you want. You have only to:
+
+* give an unique service name and unique container name
+* spcify the environment variables:
+  * CONTAINER_ROLE=quque to start the container as queue container
+  * QUEUE_NAME=<queue_name> to specify the queue name
+
+The final command launched inside the container is for example:
+
+```
+php artisan queue:work database --queue=$QUEUE_NAME --verbose --tries=3
+```
+
+An example of running laravel container as scheduler container is:
+
+```
+scheduler:
+    image: garutilorenzo/laravel:php74-pgsql
+    build:
+      context: laravel/
+    container_name: scheduler
+    volumes:
+      - ${LARAVEL_DATA_DIR:-./laravel-project}:/var/www/html
+    environment:
+      - PGSQL_USER=${PGSQL_USER:-user}
+      - PGSQL_PASSWORD=${PGSQL_PASSWORD:-password}
+      - PGSQL_DB=${PGSQL_DB:-laravel}
+      - LARAVEL_DB_HOST=pgsql
+      - CONTAINER_ROLE=scheduler
+    depends_on:
+      - pgsql
+      - laravel
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "1m"
+        max-file: "5"
+    restart: always
+```
+
+the main part here is "CONTAINER_ROLE=scheduler", with this option the container starts an infinite loop an run the above command:
+
+```
+while [ true ]
+do
+  php artisan schedule:run --verbose --no-interaction &
+  sleep 60
+done
+```
+
 #### Enable SSL (optional)
 
 A configuration example is placed on config/nginx/conf.d/example.conf-ssl (rename the file with appropriate name, and delete/rename example.conf file)
