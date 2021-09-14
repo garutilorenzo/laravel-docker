@@ -30,11 +30,15 @@ on each branch you can find a build.sh. This file builds:
   * php73: Laravel docker image with official PHP 7.3 and MySQL PDO
   * php73-pgsql: Laravel docker image with official PHP 7.3 and PgSQL PDO
 * on the alpine branch:
-  * php80: Laravel docker image with official PHP 8.0 Alpine and MySQL PDO
-  * php80-pgsql: Laravel docker image with official PHP Alpine 8.0 and PgSQL PDO
+  * alpine-php80: Laravel docker image with official PHP 8.0 Alpine and MySQL PDO
+  * alpine-php80-pgsql: Laravel docker image with official PHP Alpine 8.0 and PgSQL PDO
 * on the ubuntu branch:
-  * php80: Laravel docker image with official Ubuntu image + PHP 8.0 and MySQL PDO
-  * php80-pgsql: Laravel docker image with official Ubuntu image + PHP 8.0 and PgSQL PDO
+  * ubuntu-php80: Laravel docker image with official Ubuntu image + PHP 8.0 and MySQL PDO
+  * ubuntu-php80-pgsql: Laravel docker image with official Ubuntu image + PHP 8.0 and PgSQL PDO
+  * ubuntu-php74: Laravel docker image with official Ubuntu image + PHP 7.4 and MySQL PDO
+  * ubuntu-php74-pgsql: Laravel docker image with official Ubuntu image + PHP 7.4 and PgSQL PDO
+  * ubuntu-php73: Laravel docker image with official Ubuntu image + PHP 7.3 and MySQL PDO
+  * ubuntu-php73-pgsql: Laravel docker image with official Ubuntu image + PHP 7.3 and PgSQL PDO
 
 There are 2 differente docker-compose.yml:
 
