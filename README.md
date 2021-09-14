@@ -74,6 +74,12 @@ Build arguments:
 * DB: DB type, mysql or pgsql
 * PGSQL_DEP: Extra dependency fo Postgresql (optional, required for pgsql images)
 
+Build arguments used only in the "ubuntu" branch:
+
+* PHP_VERSION: Version of php to use
+* PHP_SHA256: SHA256 signature of the PHP package
+* GPG_KEYS: GPG keys of the PHP package
+
 There are a couple of "hard coded" variables inside the Dockerfile.
 The variables are:
 
