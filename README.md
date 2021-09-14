@@ -65,8 +65,8 @@ Environment variables:
 * FORCE_MIGRATE: Tells laravel to run php artisan migrate --force at startup
 * FORCE_COMPOSER_UPDATE: Tells laravel to run composer update at startup
 * CONTAINER_ROLE: Role of the laravel container, valid values are:
-  * queue: Run laravel as queue container
-  * scheduler: Run laravel as scheduler container
+  * queue: Run laravel as queue container. More details [here](https://laravel.com/docs/8.x/queues)
+  * scheduler: Run laravel as scheduler container. More details [here](https://laravel.com/docs/8.x/scheduling#running-the-scheduler)
   * app: Run laravel to expose http applications
 * QUEUE_NAME: Name of the queue, required if the container is launched with CONTAINER_ROLE=queue
 
@@ -117,8 +117,8 @@ Nginx will be exposed on port 80 and 443 of your host
 
 You can run the laravel container as:
 
-* queue container
-* scheduler container
+* queue container. More details [here](https://laravel.com/docs/8.x/queues)
+* scheduler container. More details [here](https://laravel.com/docs/8.x/scheduling#running-the-scheduler)
 
 An example of running laravel container as queue container is:
 
