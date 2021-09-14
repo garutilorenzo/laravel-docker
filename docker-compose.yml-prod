@@ -60,6 +60,53 @@ services:
         max-size: "1m"
         max-file: "5"
     restart: always
+  
+  # scheduler:
+  #   image: garutilorenzo/laravel:latest
+  #   build:
+  #     context: laravel/
+  #   container_name: scheduler
+  #   volumes:
+  #     - ${LARAVEL_DATA_DIR:-./laravel-project}:/var/www/html
+  #   environment:
+  #     - PGSQL_USER=${PGSQL_USER:-user}
+  #     - PGSQL_PASSWORD=${PGSQL_PASSWORD:-password}
+  #     - PGSQL_DB=${PGSQL_DB:-laravel}
+  #     - LARAVEL_DB_HOST=pgsql
+  #     - CONTAINER_ROLE=scheduler
+  #   depends_on:
+  #     - pgsql
+  #     - laravel
+  #   logging:
+  #     driver: "json-file"
+  #     options:
+  #       max-size: "1m"
+  #       max-file: "5"
+  #   restart: always
+
+  # queue-default:
+  #   image: garutilorenzo/laravel:latest
+  #   build:
+  #     context: laravel/
+  #   container_name: queue-default
+  #   volumes:
+  #     - ${LARAVEL_DATA_DIR:-./laravel-project}:/var/www/html
+  #   environment:
+  #     - PGSQL_USER=${PGSQL_USER:-user}
+  #     - PGSQL_PASSWORD=${PGSQL_PASSWORD:-password}
+  #     - PGSQL_DB=${PGSQL_DB:-laravel}
+  #     - LARAVEL_DB_HOST=pgsql
+  #     - CONTAINER_ROLE=queue
+  #     - QUEUE_NAME=default
+  #   depends_on:
+  #     - pgsql
+  #     - laravel
+  #   logging:
+  #     driver: "json-file"
+  #     options:
+  #       max-size: "1m"
+  #       max-file: "5"
+  #   restart: always
 
   # certbot:
   #   image: certbot/certbot
