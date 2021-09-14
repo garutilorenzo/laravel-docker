@@ -18,24 +18,43 @@ file_env() {
 	unset "$fileVar"
 }
 
-if [ "$1" == php-fpm ]  || [ "$1" == php ]; then
-  file_env 'FORCE_MIGRATE'
-  if [[ ! -d /var/www/html/vendor ]]; then
-	composer install
-	echo "Composer install"
-  else
-	composer update
-	echo "Composer update"
-  fi
+ROLE=${CONTAINER_ROLE:-app}
+QUEUE_NAME=${QUEUE_NAME:-default}
 
-  FILE=/var/www/html/.env
-  if ! [ -f "$FILE" ]; then
-    : "${LARAVEL_DB_HOST:=mysql}"
-    : "${MYSQL_USER:=app}"
-    : "${MYSQL_PASSWORD:=dev}"
-    : "${MYSQL_DATABASE:=laravel}"
+if [ "$ROLE" = "queue" ]; then
+    echo "Running the queue..."
+    php artisan queue:work database --queue=$QUEUE_NAME --verbose --tries=3
+elif [ "$ROLE" = "scheduler" ]; then
+    echo "Running the scheduler..."
+    while [ true ]
+    do
+      php artisan schedule:run --verbose --no-interaction &
+      sleep 60
+    done
+elif [ "$ROLE" = "app" ]; then
+	if [ "$1" == php-fpm ]  || [ "$1" == php ]; then
+	echo "Exposing Laravel..."
+	file_env 'FORCE_MIGRATE'
+	file_env 'FORCE_COMPOSER_UPDATE'
+	if [[ ! -d /var/www/html/vendor ]]; then
+		composer install
+		echo "Composer install"
+	fi
+	if [ -z "$FORCE_COMPOSER_UPDATE" ]; then
+		echo "Skipping composer update"
+	else
+		composer update
+		echo "Composer update"
+    fi
 
-    cat << EOF >> /var/www/html/.env
+	FILE=/var/www/html/.env
+	if ! [ -f "$FILE" ]; then
+		: "${LARAVEL_DB_HOST:=mysql}"
+		: "${MYSQL_USER:=app}"
+		: "${MYSQL_PASSWORD:=dev}"
+		: "${MYSQL_DATABASE:=laravel}"
+
+		cat << EOF >> /var/www/html/.env
 
 APP_NAME=Laravel
 APP_ENV=local
@@ -88,15 +107,16 @@ MIX_PUSHER_APP_KEY=""
 MIX_PUSHER_APP_CLUSTER=""
 EOF
 
-    php artisan key:generate
-    php artisan config:cache
-	php -f /usr/local/bin/wait-mysql.php
-  fi
-  if [ -z "$FORCE_MIGRATE" ]; then
-		echo "DB initialization skipped"
-	else
-		php artisan migrate --force
-   fi
+			php artisan key:generate
+			php artisan config:cache
+			php -f /usr/local/bin/wait-mysql.php
+		fi
+		if [ -z "$FORCE_MIGRATE" ]; then
+				echo "DB initialization skipped"
+			else
+				php artisan migrate --force
+		fi
+	fi
 fi
 
 exec "$@"

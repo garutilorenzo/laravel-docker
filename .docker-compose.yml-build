@@ -3,13 +3,14 @@ services:
 
   laravel:
     container_name: laravel
-    image: localbuild/laravel-docker-ci:php80
+    image: localbuild/laravel-docker-ci:${DOCKER_TAG}
     build:
      context: laravel/
      args:
-       DOCKER_IMAGE_VERSION: 8.0-fpm 
-       PDO: pdo_mysql 
-       DB: mysql
+       DOCKER_IMAGE_VERSION: ${DOCKER_IMAGE_VERSION} 
+       PGSQL_DEP: ${PGSQL_DEP} 
+       PDO: ${PDO} 
+       DB: ${DB} 
     environment:
       - MYSQL_USER=app
       - MYSQL_PASSWORD=dev

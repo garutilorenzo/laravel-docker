@@ -1,4 +1,7 @@
-FROM php:8.0-fpm
+ARG DOCKER_IMAGE_VERSION
+FROM php:${DOCKER_IMAGE_VERSION}
+
+ARG PGSQL_DEP
 
 # Install dependencies
 RUN apt-get update && apt-get install -y \
@@ -14,20 +17,24 @@ RUN apt-get update && apt-get install -y \
     zip \
     git \
     jpegoptim optipng pngquant gifsicle \
-    curl
+    curl locales ${PGSQL_DEP}
 
 # Clear cache
 RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 
+ARG PDO
+ARG DOCKER_IMAGE_VERSION
+
 # Install extensions
-RUN docker-php-ext-install pdo_mysql zip exif pcntl
-RUN docker-php-ext-configure gd --enable-gd -with-freetype --with-jpeg
+RUN docker-php-ext-install ${PDO} zip exif pcntl
+COPY ./php-configure.sh /
+RUN /php-configure.sh && rm -rf /php-configure.sh
 RUN docker-php-ext-install gd
 
 # Install composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
-ENV composer_version latest
 
+ARG COMPOSER_VERSION
 COPY ./composer.sh /
 RUN /composer.sh && rm -rf /composer.sh
 
@@ -62,7 +69,6 @@ RUN set -eux; \
         binutils-common \
         openssh-client \
         linux-libc-dev \
-        libstdc++-8-dev \
         libc-dev-bin \
         libgcc-8-dev \
         libc6-dev \
@@ -73,10 +79,22 @@ RUN set -eux; \
 
 WORKDIR /var/www/html/
 
-COPY docker-entrypoint.sh /usr/local/bin/
+ENV TZ=Europe/Rome
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
+RUN sed -i -e 's/# it_IT.UTF-8 UTF-8/it_IT.UTF-8 UTF-8/' /etc/locale.gen && \
+    dpkg-reconfigure --frontend=noninteractive locales
+
+ENV LANG it_IT.UTF-8
+ENV LANGUAGE it_IT:it
+ENV LC_ALL it_IT.UTF-8
+
+ARG DB
+
+COPY docker-entrypoint-${DB}.sh /usr/local/bin/docker-entrypoint.sh
 ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
 
-COPY wait-mysql.php /usr/local/bin/
+COPY wait-${DB}.php /usr/local/bin/
 
 # Set working directory
 VOLUME /var/www/html
