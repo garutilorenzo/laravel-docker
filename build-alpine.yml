@@ -1,0 +1,23 @@
+version: '3.4'
+services:
+
+  laravel:
+    container_name: laravel
+    image: localbuild/laravel-docker-ci:${DOCKER_TAG}
+    build:
+     context: .
+     dockerfile: alpine/Dockerfile
+     args:
+       DOCKER_IMAGE_VERSION: ${DOCKER_IMAGE_VERSION} 
+       PGSQL_DEP: ${PGSQL_DEP} 
+       PDO: ${PDO} 
+       DB: ${DB} 
+    environment:
+      - MYSQL_USER=app
+      - MYSQL_PASSWORD=dev
+      - MYSQL_DATABASE=laravel
+      - LARAVEL_DB_HOST=mysql
+      - FORCE_MIGRATE=force
+    command: [ "php", "artisan", "serve", "--host=0.0.0.0", "--port=3000" ]
+    ports: 
+      - 3000:3000
