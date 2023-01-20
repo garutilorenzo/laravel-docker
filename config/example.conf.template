@@ -1,41 +1,21 @@
 server {
-    listen 80;
-    server_name example.com www.example.com;
-    server_tokens off;
-
-    location /.well-known/acme-challenge/ {
-        root /var/www/certbot;
-    }
-
-    location / {
-        return 301 https://$host$request_uri;
-    }
-}
-
-server {
-        listen 443 ssl;
         ### Change the following line to match your website name
-        server_name example.com www.example.com;
+        server_name ${SERVER_NAME};
         root /var/www/html/public;
         index index.php;
         
         add_header X-Frame-Options "SAMEORIGIN";
+        add_header X-XSS-Protection "1; mode=block";
         add_header X-Content-Type-Options "nosniff";
 
         charset utf-8;
-
-        # SSL Settings
-        ssl_certificate /etc/letsencrypt/live/example.com/fullchain.pem;
-        ssl_certificate_key /etc/letsencrypt/live/example.com/privkey.pem;
-        include /etc/letsencrypt/options-ssl-nginx.conf;
-        ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
 
         # Set the custom error pages
         error_page 404 /index.php;
 
         # Logs
         error_log /dev/stderr;
-    	access_log /dev/stdout;
+	access_log /dev/stdout;
 
 
         # Remove direct access to the following folders & files
