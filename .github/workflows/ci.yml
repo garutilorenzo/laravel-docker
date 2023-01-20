@@ -3,10 +3,20 @@ name: Laravel CI
 on:
   push:
     branches:
-    - master
+      - master
+    paths:
+      - 'laravel/**'
+      - 'ubuntu/**'
+      - 'php-fpm/**'
+      - 'alpine/**'
   pull_request:
     branches:
-    - master
+      - master
+    paths:
+      - 'laravel/**'
+      - 'ubuntu/**'
+      - 'php-fpm/**'
+      - 'alpine/**'
 
 jobs:
 
