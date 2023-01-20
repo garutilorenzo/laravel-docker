@@ -3,11 +3,12 @@ services:
 
   laravel:
     container_name: laravel
-    image: localbuild/laravel-docker-ci:${DOCKER_TAG}
+    image: localbuild/laravel-docker:${DOCKER_TAG}
     build:
      context: .
      dockerfile: alpine/Dockerfile
      args:
+       LARAVEL_VERSION: ${LARAVEL_VERSION}
        DOCKER_IMAGE_VERSION: ${DOCKER_IMAGE_VERSION} 
        PGSQL_DEP: ${PGSQL_DEP} 
        PDO: ${PDO} 
