@@ -95,6 +95,9 @@ RUN set -eux; \
 
 COPY ./ubuntu/docker-php-source /usr/local/bin/
 
+ENV TZ=Europe/Rome
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
 RUN set -eux; \
 	\
 	savedAptMark="$(apt-mark showmanual)"; \
@@ -203,7 +206,7 @@ RUN set -eux; \
 # smoke test
 	php --version
 
-COPY ./ubuntu/docker-php-ext-* docker-php-entrypoint /usr/local/bin/
+COPY ./ubuntu/docker-php-ext-* ./ubuntu/docker-php-entrypoint /usr/local/bin/
 
 # sodium was built as a shared module (so that it can be replaced later if so desired), so let's enable it too (https://github.com/docker-library/php/issues/598)
 RUN docker-php-ext-enable sodium
@@ -256,6 +259,7 @@ STOPSIGNAL SIGQUIT
 EXPOSE 9000
 CMD ["php-fpm"]
 
+# Laravel stuff
 
 FROM php-ubuntu-fpm
 
