@@ -32,6 +32,7 @@ In this case the final image will be tagged with *localbuild/laravel-docker:php8
 The supported build variables are:
 
 | Var   | Desc |
+| -------         | ----------- |
 | `LARAVEL_VERSION`    | Laravel version to be included in the builded image |
 | `DOCKER_IMAGE_VERSION`    | PHP base image version to use |
 | `COMPOSER_VERSION`    | Composer version to use |
@@ -41,6 +42,7 @@ The supported build variables are:
 Specific build variables needed only for Ubuntu:
 
 | Var   | Desc |
+| -------         | ----------- |
 | `PHP_VERSION`    | Version of php to use |
 | `PHP_SHA256`    | SHA256 signature of the PHP package |
 | `GPG_KEYS`    | GPG keys of the PHP package |
@@ -71,6 +73,7 @@ Other configurations files:
 Laravel container accepts the following env variables:
 
 | Var   | Desc |
+| -------         | ----------- |
 | `LARAVEL_DB_HOST`    | MySQL or Postgresql host |
 | `FORCE_MIGRATE`    | Tells Laravel to run php artisan migrate --force at startup |
 | `FORCE_COMPOSER_UPDATE`    | Tells Laravel to run composer update at startup |
@@ -87,6 +90,8 @@ MySQL variables:
 
 PgSQL variables:
 
+| Var   | Desc |
+| -------         | ----------- |
 | `PGSQL_USER`    | Postgresql user |
 | `PGSQL_PASSWORD`    | Postgresql password |
 | `PGSQL_DB`    | Postgresql password |
