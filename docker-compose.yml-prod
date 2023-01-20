@@ -7,10 +7,10 @@ services:
     volumes:
       - ${LARAVEL_DATA_DIR:-./laravel-project}:/var/www/html
     environment:
-      - MYSQL_USER=app
-      - MYSQL_PASSWORD=dev
-      - MYSQL_DATABASE=laravel
-      - LARAVEL_DB_HOST=mysql
+      - MYSQL_USER=${LARAVEL_DB_USER:-app}
+      - MYSQL_PASSWORD=${LARAVEL_DB_PASSWORD:-password}
+      - MYSQL_DATABASE=${LARAVEL_DB_NAME:-laravel}
+      - LARAVEL_DB_HOST=${LARAVEL_DB_HOST:-mysql}
     depends_on:
       - mysql
     logging:
@@ -32,7 +32,7 @@ services:
     #  - ./sql:/docker-entrypoint-initdb.d
     environment:
       - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:-password}
-      - MYSQL_USER=${MYSQL_USER:-root}
+      - MYSQL_USER=${MYSQL_USER:-app}
       - MYSQL_PASSWORD=${MYSQL_PASSWORD:-password}
       - MYSQL_DATABASE=${MYSQL_DATABASE:-laravel}
     logging:
@@ -49,8 +49,10 @@ services:
       - '80:80'
       - '443:443'
     volumes:
-      - ${NGINX_CONF_DIR:-./config/nginx}:/etc/nginx/
+      - ${NGINX_TEMPLATE_DIR:-./config}:/etc/nginx/templates:ro
       - ${LARAVEL_DATA_DIR:-./laravel-project}:/var/www/html:ro
+    environment:
+      - SERVER_NAME=example.com www.example.com
     depends_on:
       - laravel
     # command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'" #certobt
@@ -69,10 +71,10 @@ services:
   #   volumes:
   #     - ${LARAVEL_DATA_DIR:-./laravel-project}:/var/www/html
   #   environment:
-  #     - PGSQL_USER=${PGSQL_USER:-user}
-  #     - PGSQL_PASSWORD=${PGSQL_PASSWORD:-password}
-  #     - PGSQL_DB=${PGSQL_DB:-laravel}
-  #     - LARAVEL_DB_HOST=pgsql
+  #     - MYSQL_USER=${LARAVEL_DB_USER:-app}
+  #     - MYSQL_PASSWORD=${LARAVEL_DB_USER:-password}
+  #     - MYSQL_DATABASE=${LARAVEL_DB_NAME:-laravel}
+  #     - LARAVEL_DB_HOST=${LARAVEL_DB_HOST:-mysql}
   #     - CONTAINER_ROLE=scheduler
   #   depends_on:
   #     - pgsql
@@ -92,10 +94,10 @@ services:
   #   volumes:
   #     - ${LARAVEL_DATA_DIR:-./laravel-project}:/var/www/html
   #   environment:
-  #     - PGSQL_USER=${PGSQL_USER:-user}
-  #     - PGSQL_PASSWORD=${PGSQL_PASSWORD:-password}
-  #     - PGSQL_DB=${PGSQL_DB:-laravel}
-  #     - LARAVEL_DB_HOST=pgsql
+  #     - MYSQL_USER=${LARAVEL_DB_USER:-app}
+  #     - MYSQL_PASSWORD=${LARAVEL_DB_USER:-password}
+  #     - MYSQL_DATABASE=${LARAVEL_DB_NAME:-laravel}
+  #     - LARAVEL_DB_HOST=${LARAVEL_DB_HOST:-mysql}
   #     - CONTAINER_ROLE=queue
   #     - QUEUE_NAME=default
   #   depends_on:

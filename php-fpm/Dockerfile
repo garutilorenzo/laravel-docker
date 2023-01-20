@@ -27,7 +27,7 @@ ARG DOCKER_IMAGE_VERSION
 
 # Install extensions
 RUN docker-php-ext-install ${PDO} zip exif pcntl
-COPY ./php-configure.sh /
+COPY ./laravel/php-configure.sh /
 RUN /php-configure.sh && rm -rf /php-configure.sh
 RUN docker-php-ext-install gd
 
@@ -35,7 +35,7 @@ RUN docker-php-ext-install gd
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
 ARG COMPOSER_VERSION
-COPY ./composer.sh /
+COPY ./laravel/composer.sh /
 RUN /composer.sh && rm -rf /composer.sh
 
 # Add user for laravel application
@@ -43,12 +43,12 @@ RUN groupadd -g 1000 app && useradd -u 1000 -g 1000 -m -d /var/www/html -s /bin/
 
 WORKDIR /root/
 
-ENV laravel_version 8.5.9
+ARG LARAVEL_VERSION
 RUN rm -rf /var/www/html \
-    && curl -SLJ https://github.com/laravel/laravel/archive/v$laravel_version.tar.gz  | tar -zxC /root/ \
-    && mv /root/laravel-$laravel_version /var/www/html \
+    && curl -SLJ https://github.com/laravel/laravel/archive/v${LARAVEL_VERSION}.tar.gz  | tar -zxC /root/ \
+    && mv /root/laravel-${LARAVEL_VERSION} /var/www/html \
     && chown -R www-data:www-data /var/www \
-    && rm -rf /root/laravel-$laravel_version
+    && rm -rf /root/laravel-${LARAVEL_VERSION}
 
 ENV PHPIZE_DEPS \
 		autoconf \
@@ -91,10 +91,10 @@ ENV LC_ALL it_IT.UTF-8
 
 ARG DB
 
-COPY docker-entrypoint-${DB}.sh /usr/local/bin/docker-entrypoint.sh
+COPY ./laravel/docker-entrypoint-${DB}.sh /usr/local/bin/docker-entrypoint.sh
 ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
 
-COPY wait-${DB}.php /usr/local/bin/
+COPY ./laravel/wait-${DB}.php /usr/local/bin/
 
 # Set working directory
 VOLUME /var/www/html

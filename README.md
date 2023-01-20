@@ -8,41 +8,54 @@
 
 ![Laravel Logo](https://garutilorenzo.github.io/images/laravel.png)
 
-#### How to use this repository
+### How to use this repository
 
-There are 3 branch. Each branch contains a different base image.
-On each branch then you can find a "build matrix" in build.sh
-Switch to the branch with the base image you prefer and build the images, or download images directly from https://hub.docker.com/
+#### Build the images (optional)
 
-The branches are:
+In the directory [build-env-files](build-env-files/) you will find the build environment variables for:
 
-* master: official php images
-* alpine: official php alpine images
-* ubuntu: ubuntu official images + php
+* php-fpm
+* alpine
+* ubuntu
 
-on each branch you can find a build.sh. This file builds:
+and for each base image you can build the final image with: php 8, php 7.4 and php 7.3.
+On each *php version* subdir you will find two *build env files* one for MySQL and one for PgSQL
 
-* on the master branch:
-  * php80: Laravel docker image with official PHP 8.0 and MySQL PDO
-  * php80-pgsql: Laravel docker image with official PHP 8.0 and PgSQL PDO
-  * php74: Laravel docker image with official PHP 7.4 and MySQL PDO
-  * php74-pgsql: Laravel docker image with official PHP 7.4 and PgSQL PDO
-  * php73: Laravel docker image with official PHP 7.3 and MySQL PDO
-  * php73-pgsql: Laravel docker image with official PHP 7.3 and PgSQL PDO
-* on the alpine branch:
-  * alpine-php80: Laravel docker image with official PHP 8.0 Alpine and MySQL PDO
-  * alpine-php80-pgsql: Laravel docker image with official PHP Alpine 8.0 and PgSQL PDO
-  * alpine-php74: Laravel docker image with official PHP 7.4 Alpine and MySQL PDO
-  * alpine-php74-pgsql: Laravel docker image with official PHP Alpine 7.4 and PgSQL PDO
-  * alpine-php73: Laravel docker image with official PHP 7.3 Alpine and MySQL PDO
-  * alpine-php73-pgsql: Laravel docker image with official PHP Alpine 7.3 and PgSQL PDO
-* on the ubuntu branch:
-  * ubuntu-php80: Laravel docker image with official Ubuntu image + PHP 8.0 and MySQL PDO
-  * ubuntu-php80-pgsql: Laravel docker image with official Ubuntu image + PHP 8.0 and PgSQL PDO
-  * ubuntu-php74: Laravel docker image with official Ubuntu image + PHP 7.4 and MySQL PDO
-  * ubuntu-php74-pgsql: Laravel docker image with official Ubuntu image + PHP 7.4 and PgSQL PDO
-  * ubuntu-php73: Laravel docker image with official Ubuntu image + PHP 7.3 and MySQL PDO
-  * ubuntu-php73-pgsql: Laravel docker image with official Ubuntu image + PHP 7.3 and PgSQL PDO
+To build the images from scratch you can run the following command:
+
+```console
+docker-compose --env-file build-env-files/php-fpm/8/.env-pgsql -f build-phpfpm.yml build # --pull <- Use '--pull' if you want to update the base image 
+```
+
+In this case the final image will be tagged with *localbuild/laravel-docker:php80-pgsql*, you can then push the newly builded image in your registry.
+
+The supported build variables are:
+
+| Var   | Desc |
+| -------         | ----------- |
+| `LARAVEL_VERSION`    | Laravel version to be included in the builded image |
+| `DOCKER_IMAGE_VERSION`    | PHP base image version to use |
+| `COMPOSER_VERSION`    | Composer version to use |
+| `PDO`    | PDO to install, pdo_mysql or pdo_pgsql |
+| `PGSQL_DEP`    | Extra dependency fo Postgresql (optional, required for pgsql images)|
+
+Specific build variables needed only for Ubuntu:
+
+| Var   | Desc |
+| -------         | ----------- |
+| `PHP_VERSION`    | Version of php to use |
+| `PHP_SHA256`    | SHA256 signature of the PHP package |
+| `GPG_KEYS`    | GPG keys of the PHP package |
+
+There are a couple of "hard coded" variables inside the Dockerfile.
+The variables are:
+
+* TZ: this variable set the timezone
+* LANG, LANGUAGE, LC_ALL: these variable set the locale of the container
+
+Also to adjust the locale you have to modify this line "sed -i -e 's/# it_IT.UTF-8 UTF-8/it_IT.UTF-8 UTF-8/' /etc/locale.gen" with the locale you need.
+
+#### Bring up test or prod env
 
 There are 2 differente docker-compose.yml:
 
@@ -55,48 +68,35 @@ Other configurations files:
 * config directory contains nginx configurations (only for prod environment). Adjust domain with your own domain
 * init_letsencrypt.sh (optional): initializes a custom ssl certificate used by nginx on the very first initlialization of the prod enviroment
 
-#### Variables
+### Variables
 
-Environment variables:
+Laravel container accepts the following env variables:
 
-* MYSQL_USER: MySQL user
-* MYSQL_PASSWORD: MySQL password
-* MYSQL_DATABASE: MySQL database
-* PGSQL_USER: Postgresql user
-* PGSQL_PASSWORD: Postgresql password
-* PGSQL_DB: Postgresql database
-* LARAVEL_DB_HOST: MySQL or Postgresql host
-* FORCE_MIGRATE: Tells laravel to run php artisan migrate --force at startup
-* FORCE_COMPOSER_UPDATE: Tells laravel to run composer update at startup
-* CONTAINER_ROLE: Role of the laravel container, valid values are:
-  * queue: Run laravel as queue container. More details [here](https://laravel.com/docs/8.x/queues)
-  * scheduler: Run laravel as scheduler container. More details [here](https://laravel.com/docs/8.x/scheduling#running-the-scheduler)
-  * app: Run laravel to expose http applications
-* QUEUE_NAME: Name of the queue, required if the container is launched with CONTAINER_ROLE=queue
+| Var   | Desc |
+| -------         | ----------- |
+| `LARAVEL_DB_HOST`    | MySQL or Postgresql host |
+| `FORCE_MIGRATE`    | Tells Laravel to run php artisan migrate --force at startup |
+| `FORCE_COMPOSER_UPDATE`    | Tells Laravel to run composer update at startup |
+| `CONTAINER_ROLE`    | Role of the laravel container, valid values are: queue, scheduler, app (default) |
+| `QUEUE_NAME`    | Name of the queue, required if the container is launched with CONTAINER_ROLE=queue |
 
-Build arguments:
+MySQL variables:
 
-* DOCKER_IMAGE_VERSION: PHP base image version to use
-* COMPOSER_VERSION: Composer version to use
-* PDO: PDO to install, pdo_mysql or pdo_pgsql
-* DB: DB type, mysql or pgsql
-* PGSQL_DEP: Extra dependency fo Postgresql (optional, required for pgsql images)
+| Var   | Desc |
+| -------         | ----------- |
+| `MYSQL_USER`    | MySQL user  |
+| `MYSQL_PASSWORD`    | MySQL password |
+| `MYSQL_DATABASE`    | MySQL database |
 
-Build arguments used only in the "ubuntu" branch:
+PgSQL variables:
 
-* PHP_VERSION: Version of php to use
-* PHP_SHA256: SHA256 signature of the PHP package
-* GPG_KEYS: GPG keys of the PHP package
+| Var   | Desc |
+| -------         | ----------- |
+| `PGSQL_USER`    | Postgresql user |
+| `PGSQL_PASSWORD`    | Postgresql password |
+| `PGSQL_DB`    | Postgresql password |
 
-There are a couple of "hard coded" variables inside the Dockerfile.
-The variables are:
-
-* TZ: this variable set the timezone
-* LANG, LANGUAGE, LC_ALL: these variable set the locale of the container
-
-Also to adjust the locale you have to modify this line "sed -i -e 's/# it_IT.UTF-8 UTF-8/it_IT.UTF-8 UTF-8/' /etc/locale.gen" with the locale you need.
-
-#### Setup test or prod env
+### Setup test or prod env
 
 For testing purposes copy docer-compose.yml-dev in docker-compose.yml, fire up the enviromnent with:
 
@@ -117,30 +117,31 @@ docker-compose up -d
 
 Nginx will be exposed on port 80 and 443 of your host
 
-#### Queue and Scheduler containers
+### Queue and Scheduler containers
 
 You can run the laravel container as:
 
+* app. Run laravel to expose http applications (default)
 * queue container. More details [here](https://laravel.com/docs/8.x/queues)
 * scheduler container. More details [here](https://laravel.com/docs/8.x/scheduling#running-the-scheduler)
 
 An example of running laravel container as queue container is:
 
-```
-queue-default:
+```yaml
+queue_default:
     image: garutilorenzo/laravel:php74-pgsql
     build:
       context: laravel/
-    container_name: queue-default
+    container_name: queue_default
     volumes:
       - ${LARAVEL_DATA_DIR:-./laravel-project}:/var/www/html
     environment:
-      - PGSQL_USER=${PGSQL_USER:-user}
-      - PGSQL_PASSWORD=${PGSQL_PASSWORD:-password}
-      - PGSQL_DB=${PGSQL_DB:-laravel}
-      - LARAVEL_DB_HOST=pgsql
+      - MYSQL_USER=${LARAVEL_DB_USER:-app}
+      - MYSQL_PASSWORD=${LARAVEL_DB_USER:-password}
+      - MYSQL_DATABASE=${LARAVEL_DB_NAME:-laravel}
+      - LARAVEL_DB_HOST=${LARAVEL_DB_HOST:-mysql}
       - CONTAINER_ROLE=queue
-      - QUEUE_NAME=default
+      - QUEUE_NAME=default     
     depends_on:
       - pgsql
       - laravel
@@ -166,7 +167,7 @@ php artisan queue:work database --queue=$QUEUE_NAME --verbose --tries=3
 
 An example of running laravel container as scheduler container is:
 
-```
+```yaml
 scheduler:
     image: garutilorenzo/laravel:php74-pgsql
     build:
@@ -175,10 +176,10 @@ scheduler:
     volumes:
       - ${LARAVEL_DATA_DIR:-./laravel-project}:/var/www/html
     environment:
-      - PGSQL_USER=${PGSQL_USER:-user}
-      - PGSQL_PASSWORD=${PGSQL_PASSWORD:-password}
-      - PGSQL_DB=${PGSQL_DB:-laravel}
-      - LARAVEL_DB_HOST=pgsql
+      - MYSQL_USER=${LARAVEL_DB_USER:-app}
+      - MYSQL_PASSWORD=${LARAVEL_DB_USER:-password}
+      - MYSQL_DATABASE=${LARAVEL_DB_NAME:-laravel}
+      - LARAVEL_DB_HOST=${LARAVEL_DB_HOST:-mysql}
       - CONTAINER_ROLE=scheduler
     depends_on:
       - pgsql
@@ -201,7 +202,7 @@ do
 done
 ```
 
-#### Enable SSL (optional)
+### Enable SSL (optional)
 
 A configuration example is placed on config/nginx/conf.d/example.conf-ssl (rename the file with appropriate name, and delete/rename example.conf file)
 Remember to uncomment certbot service in docker-compose.yml-prod.
@@ -223,7 +224,7 @@ You can now start the services with:
 docker-compose up -d
 ```
 
-#### Notes
+### Notes
 
 * MySQL sotre persistent data on mysql volume. The volume persist until command docker-compose down -v is gived.
 * Laravel docker image contains laravel v. 8.5.9. To persist your work download the laravel version you desire and extract the archive in laravel-project dir (at the same lavel on docker-compose.yml).

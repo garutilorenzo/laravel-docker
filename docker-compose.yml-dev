@@ -2,15 +2,15 @@ version: '3.4'
 services:
 
   laravel:
-    image: garutilorenzo/laravel:latest
+    image: localbuild/laravel-docker:php7.3
     container_name: laravel
     volumes:
       - ${LARAVEL_DATA_DIR:-./laravel-project}:/var/www/html
     environment:
-      - MYSQL_USER=app
-      - MYSQL_PASSWORD=dev
-      - MYSQL_DATABASE=laravel
-      - LARAVEL_DB_HOST=mysql
+      - MYSQL_USER=${LARAVEL_DB_USER:-app}
+      - MYSQL_PASSWORD=${LARAVEL_DB_PASSWORD:-password}
+      - MYSQL_DATABASE=${LARAVEL_DB_NAME:-laravel}
+      - LARAVEL_DB_HOST=${LARAVEL_DB_HOST:-mysql}
       - FORCE_MIGRATE=force
     command: [ "php", "artisan", "serve", "--host=0.0.0.0", "--port=3000" ]
     ports: 
@@ -36,7 +36,7 @@ services:
       - ./sql:/docker-entrypoint-initdb.d
     environment:
       - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:-password}
-      - MYSQL_USER=${MYSQL_USER:-root}
+      - MYSQL_USER=${MYSQL_USER:-app}
       - MYSQL_PASSWORD=${MYSQL_PASSWORD:-password}
       - MYSQL_DATABASE=${MYSQL_DATABASE:-laravel}
     logging:
