@@ -8,7 +8,7 @@ services:
       - ${LARAVEL_DATA_DIR:-./laravel-project}:/var/www/html
     environment:
       - MYSQL_USER=${LARAVEL_DB_USER:-app}
-      - MYSQL_PASSWORD=${LARAVEL_DB_USER:-password}
+      - MYSQL_PASSWORD=${LARAVEL_DB_PASSWORD:-password}
       - MYSQL_DATABASE=${LARAVEL_DB_NAME:-laravel}
       - LARAVEL_DB_HOST=${LARAVEL_DB_HOST:-mysql}
     depends_on:
@@ -49,8 +49,10 @@ services:
       - '80:80'
       - '443:443'
     volumes:
-      - ${NGINX_CONF_DIR:-./config/nginx}:/etc/nginx/conf.d:ro
+      - ${NGINX_TEMPLATE_DIR:-./config}:/etc/nginx/templates:ro
       - ${LARAVEL_DATA_DIR:-./laravel-project}:/var/www/html:ro
+    environment:
+      - SERVER_NAME=example.com www.example.com
     depends_on:
       - laravel
     # command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'" #certobt
