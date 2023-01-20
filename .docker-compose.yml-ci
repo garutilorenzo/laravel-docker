@@ -3,7 +3,7 @@ services:
 
   laravel:
     container_name: laravel
-    image: localbuild/laravel-docker-ci:latest
+    image: localbuild/laravel-docker:php80
     build:
      context: laravel/
      args:

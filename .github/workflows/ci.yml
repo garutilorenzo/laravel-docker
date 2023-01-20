@@ -15,9 +15,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Build the Docker image
-      run: docker-compose -f .docker-compose.yml-ci build --pull --no-cache
+      run: docker-compose --env-file build-env-files/php-fpm/8/.env-mysql -f build-phpfpm.yml build --pull
     - name: Bringup the environment
       run: docker-compose -f .docker-compose.yml-ci --env-file .env up -d
     - name: Sleep for 30 seconds
@@ -31,7 +31,7 @@ jobs:
     - uses: anchore/scan-action@v2
       id: scan
       with:
-        image: "localbuild/laravel-docker-ci:latest"
+        image: "localbuild/laravel-docker:php80"
         acs-report-enable: true
     - name: upload Anchore scan SARIF report
       uses: github/codeql-action/upload-sarif@v1
