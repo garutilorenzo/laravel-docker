@@ -311,12 +311,12 @@ RUN groupadd -g 1000 app && useradd -u 1000 -g 1000 -m -d /var/www/html -s /bin/
 
 WORKDIR /root/
 
-ENV laravel_version 8.5.9
+ARG LARAVEL_VERSION
 RUN rm -rf /var/www/html \
-    && curl -SLJ https://github.com/laravel/laravel/archive/v$laravel_version.tar.gz  | tar -zxC /root/ \
-    && mv /root/laravel-$laravel_version /var/www/html \
+    && curl -SLJ https://github.com/laravel/laravel/archive/v${LARAVEL_VERSION}.tar.gz  | tar -zxC /root/ \
+    && mv /root/laravel-${LARAVEL_VERSION} /var/www/html \
     && chown -R www-data:www-data /var/www \
-    && rm -rf /root/laravel-$laravel_version
+    && rm -rf /root/laravel-${LARAVEL_VERSION}
 
 WORKDIR /var/www/html/
 
