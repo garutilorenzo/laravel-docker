@@ -11,9 +11,9 @@ services:
       - MYSQL_PASSWORD=${LARAVEL_DB_PASSWORD:-password}
       - MYSQL_DATABASE=${LARAVEL_DB_NAME:-laravel}
       - LARAVEL_DB_HOST=${LARAVEL_DB_HOST:-mysql}
-      - FORCE_MIGRATE=force
-      - FORCE_COMPOSER_UPDATE=yes
-      # - APP_NAME=${APP_NAME}
+      # - FORCE_MIGRATE=force
+      # - FORCE_COMPOSER_UPDATE=yes
+      - APP_NAME=${APP_NAME}
     depends_on:
       - mysql
     logging:
