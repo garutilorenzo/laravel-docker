@@ -23,9 +23,10 @@ build_env_file(){
     : "${MYSQL_USER:=app}"
     : "${MYSQL_PASSWORD:=dev}"
     : "${MYSQL_DATABASE:=laravel}"
+    : "${APP_NAME:=Laravel}"
 
     cat << EOF >> /var/www/html/.env
-APP_NAME=Laravel
+APP_NAME=$APP_NAME
 APP_ENV=local
 APP_KEY=
 APP_DEBUG=true
@@ -99,6 +100,10 @@ elif [ "$ROLE" = "app" ]; then
             composer install
             echo "Composer install"
         fi
+        if [[ ! -d /var/www/html/node_modules ]]; then
+            npm install
+            echo "npm install"
+        fi
         if [ -z "$FORCE_COMPOSER_UPDATE" ]; then
             echo "Skipping composer update"
         else
@@ -113,6 +118,7 @@ elif [ "$ROLE" = "app" ]; then
             php artisan cache:clear
             php artisan key:generate
             php artisan config:cache
+            npm run build
             php -f /usr/local/bin/wait-mysql.php
         fi
         if [ -z "$FORCE_MIGRATE" ]; then

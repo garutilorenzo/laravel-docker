@@ -1,0 +1,175 @@
+version: '3.4'
+services:
+
+  laravel:
+    image: ${REGISTRY}:${DOCKER_TAG}
+    networks:
+      - web-private
+    volumes:
+      - laravel_data:/var/www/html
+    environment:
+      - MYSQL_USER=${LARAVEL_DB_USER}
+      - MYSQL_PASSWORD=${LARAVEL_DB_PASSWORD}
+      - MYSQL_DATABASE=${LARAVEL_DB_NAME}
+      - LARAVEL_DB_HOST=${LARAVEL_DB_HOST:-db-server.cett.org.br}
+      # - FORCE_MIGRATE=force
+      - FORCE_COMPOSER_UPDATE=yes
+      # - APP_NAME=${APP_NAME}
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "1m"
+        max-file: "5"
+    deploy:
+      mode: replicated
+      replicas: 1
+      restart_policy:
+        condition: any
+      resources:
+        limits:
+          cpus: "0.2"
+          memory: 100M
+        reservations:
+          cpus: "0.1"
+          memory: 50M
+      placement:
+        constraints:
+          - node.labels.workload.prod == yes
+
+  nginx:
+    image: nginx:${NGINX_VERSION:-latest}
+    networks:
+      - traefik-public
+      - web-private
+    volumes:
+      - laravel_data:/var/www/html:ro
+      - nginx_config:/etc/nginx/templates:ro
+    environment:
+      - SERVER_NAME=${SERVER_NAME}
+    depends_on:
+      - laravel
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "1m"
+        max-file: "5"
+    deploy:
+      mode: replicated
+      replicas: 1
+      restart_policy:
+        condition: any
+      resources:
+        limits:
+          cpus: "0.2"
+          memory: 100M
+        reservations:
+          cpus: "0.1"
+          memory: 50M
+      placement:
+        constraints:
+          - node.labels.workload.prod == yes
+      labels:
+        - traefik.enable=true
+        - traefik.docker.network=traefik-public
+        - traefik.constraint-label=traefik-public
+
+        - traefik.http.routers.site_selecao-http.rule=Host(`${SERVER_NAME}`)
+        - traefik.http.routers.site_selecao-http.entrypoints=http
+        - traefik.http.routers.site_selecao-http.middlewares=https-redirect
+        - traefik.http.routers.site_selecao-https.rule=Host(`${SERVER_NAME}`)
+        - traefik.http.routers.site_selecao-https.entrypoints=https
+        - traefik.http.routers.site_selecao-https.tls=true
+        - traefik.http.services.site_selecao.loadbalancer.server.port=80
+
+  scheduler:
+    image: ${REGISTRY}:${DOCKER_TAG}
+    build:
+      context: laravel/
+    volumes:
+      - ${LARAVEL_DATA_DIR:-./laravel-project}:/var/www/html
+    environment:
+      - MYSQL_USER=${LARAVEL_DB_USER:-app}
+      - MYSQL_PASSWORD=${LARAVEL_DB_USER:-password}
+      - MYSQL_DATABASE=${LARAVEL_DB_NAME:-laravel}
+      - LARAVEL_DB_HOST=${LARAVEL_DB_HOST:-mysql}
+      - CONTAINER_ROLE=scheduler
+    depends_on:
+      - mysql
+      - laravel
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "1m"
+        max-file: "5"
+    deploy:
+      mode: replicated
+      replicas: 1
+      restart_policy:
+        condition: any
+      resources:
+        limits:
+          cpus: "0.2"
+          memory: 100M
+        reservations:
+          cpus: "0.1"
+          memory: 50M
+      placement:
+        constraints:
+          - node.labels.workload.prod == yes
+
+  queue-default:
+    image: ${REGISTRY}:${DOCKER_TAG}
+    build:
+      context: laravel/
+    volumes:
+      - ${LARAVEL_DATA_DIR:-./laravel-project}:/var/www/html
+    environment:
+      - MYSQL_USER=${LARAVEL_DB_USER:-app}
+      - MYSQL_PASSWORD=${LARAVEL_DB_USER:-password}
+      - MYSQL_DATABASE=${LARAVEL_DB_NAME:-laravel}
+      - LARAVEL_DB_HOST=${LARAVEL_DB_HOST:-mysql}
+      - CONTAINER_ROLE=queue
+      - QUEUE_NAME=default
+    depends_on:
+      - mysql
+      - laravel
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "1m"
+        max-file: "5"
+    deploy:
+      mode: replicated
+      replicas: 1
+      restart_policy:
+        condition: any
+      resources:
+        limits:
+          cpus: "0.2"
+          memory: 100M
+        reservations:
+          cpus: "0.1"
+          memory: 50M
+      placement:
+        constraints:
+          - node.labels.workload.prod == yes
+
+networks:
+  traefik-public:
+    external: true
+  web-private:
+    external: true
+
+volumes:
+  laravel_data:
+    driver: local
+    driver_opts:
+        type: nfs
+        o: nfsvers=4,addr=nfs-server,nolock,soft,rw
+        device: ":/data/volume/prod/${APP_TAG}/laravel-project"
+  nginx_config:
+    driver: local
+    driver_opts:
+        type: nfs
+        o: nfsvers=4,addr=nfs-server,nolock,soft,rw
+        device: ":/data/volume/prod/${APP_TAG}/config"

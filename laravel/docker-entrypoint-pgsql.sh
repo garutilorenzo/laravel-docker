@@ -23,6 +23,7 @@ build_env_file(){
     : "${PGSQL_USER:=app}"
     : "${PGSQL_PASSWORD:=dev}"
     : "${PGSQL_DB:=laravel}"
+    : "${APP_NAME:=Laravel}"
 
     cat << EOF >> /var/www/html/.env
 APP_NAME=Laravel
